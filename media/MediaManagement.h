@@ -49,6 +49,10 @@ private:
     void createBooksTable();
     void createTitleTable();
     void createLinksTable();
+	int getlastMediaUID();
+	int getlastPersonUID();
+	int getlastJournalUID();
+	int getlastPublisherUID();
     
     static int callback(void*, int, char**, char**);
 

@@ -140,8 +140,6 @@ string Article::generateInsertStatement(){
 	else sql.append(null);
 	sql.append(");\n");
 	sql.append("\n");
-	
-	
-	
+
 	return sql;
 }

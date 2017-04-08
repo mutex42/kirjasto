@@ -6,92 +6,49 @@ MediaManagement::MediaManagement(){
     if ( rc ) { cerr << "Can't open database: " << sqlite3_errmsg(db) << endl; }
     
     lastMediaUID = 0; // TODO: this needs to be changed into something useful.
-    lastPersonUID = 0;
+    lastPersonUID = getlastPersonUID();
     lastJournalUID = 0;
     lastPublisherUID = 0;
 }
 
 MediaManagement::~MediaManagement(){
     sqlite3_close(db);
- //   cout << "Database closed." << endl;
 }
 
-void MediaManagement::createPersonTable() {
-    sql = "CREATE TABLE PERSONS("\
-                "PID INT PRIMARY KEY NOT NULL,"\
-                "SPELLING TEXT NOT NULL," \
-                "DEFAULTSPELLING INT NOT NULL);";
+int MediaManagement::getlastMediaUID(){}
+
+int MediaManagement::getlastPersonUID(){
+	sql = "SELECT Max(PID) FROM PERSONS";
+	rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+	if ( rc != SQLITE_OK ) {
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg); 
+	}
 }
 
-void MediaManagement::createAuthorsTable(){
-    sql = "CREATE TABLE AUTHORS("\
-                "PID INT NOT NULL," \
-                "MID INT NOT NULL);";
-}
+int MediaManagement::getlastJournalUID(){}
 
-void MediaManagement::createJournalsTable(){
-    sql = "CREATE TABLE JOURNALS(" \
-                "JID INT PRIMARY KEY NOT NULL," \
-                "NAME TEXT NOT NULL);";
-}
+int MediaManagement::getlastPublisherUID(){}
 
-void MediaManagement::createJournalArticlesTable(){
-    sql = "CREATE TABLE JAT(" \
-                "MID INT NOT NULL," \
-                "JID INT NOT NULL);";
-}
+void MediaManagement::createPersonTable() {}
 
-void MediaManagement::createLinksTable(){
-    sql = "CREATE TABLE LINKS("\
-                "MID INT NOT NULL,"\
-                "LINK TEXT NOT NULL);";
-}
+void MediaManagement::createAuthorsTable(){}
 
-void MediaManagement::createArticlesTable(){
-    sql =   "CREATE TABLE ARTICLES("\
-                "MID INT PRIMARY KEY NOT NULL,"\
-                "TITLE TEXT NOT NULL,"\
-                "YEAR INT NOT NULL," \
-                "VOLUME INT," \
-                "NUMBER INT," \
-                "PAGES1 INT," \
-                "PAGES2 INT," \
-                "MONTH INT," \
-                "NOTE TEXT);";
-}
+void MediaManagement::createJournalsTable(){}
 
-void MediaManagement::createEditorsTable(){
-    sql = "CREATE TABLE EDITORS("\
-                "PID INT NOT NULL," \
-                "MID INT NOT NULL);";
-}
+void MediaManagement::createJournalArticlesTable(){}
 
-void MediaManagement::createPublishersTable(){
-    sql = "CREATE TABLE PUBLISHERS("\
-                "PUBID INT PRIMARY KEY NOT NULL,"\
-                "NAME TEXT NOT NULL);";
-}
+void MediaManagement::createLinksTable(){}
 
-void MediaManagement::createBooksTable(){
-    sql = "CREATE TABLE BOOKS("\
-                "MID INT PRIMARY KEY NOT NULL,"\
-                "PUBLISHER INT NOT NULL," \
-                "YEAR INT NOT NULL,"\
-                "VOLUME INT," \
-                "NUMBER INT," \
-                "SERIES TEXT," \
-                "ADDRESS TEXT," \
-                "EDITION INT," \
-                "MONTH INT," \
-                "NOTE TEXT," \
-                "ISBN TEXT);";
-}
+void MediaManagement::createArticlesTable(){}
 
-void MediaManagement::createTitleTable(){
-    sql = "CREATE TABLE TITLES(" \
-                "MID INT NOT NULL," \
-                "TITLE TEXT NOT NULL);";
-}
+void MediaManagement::createEditorsTable(){}
+
+void MediaManagement::createPublishersTable(){}
+
+void MediaManagement::createBooksTable(){}
+
+void MediaManagement::createTitleTable(){}
 
 int MediaManagement::getMediaUID(){
     lastMediaUID++;
@@ -114,7 +71,7 @@ int MediaManagement::getPublisherUID(){
 }
 
 void MediaManagement::addPerson(Person p) {
-    int defaultspelling = 1;
+    int defaultspelling = 0;
     sql = "INSERT INTO PERSONS (PID,SPELLING,DEFAULTSPELLING) " \
                 "VALUES (";
     for (size_t i = 0, max = p.spellings.size(); i < max; i++){
@@ -124,7 +81,6 @@ void MediaManagement::addPerson(Person p) {
         sql.append(to_string(defaultspelling));
         sql.append(")");
         if (i != (p.spellings.size() - 1)) { sql.append(", ("); }
-        defaultspelling = 0;
     }
     sql.append(";");
 }
